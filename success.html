@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Confirmed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #0f0e0c; --paper: #f5f2ec; --gold: #b8943f; --muted: #7a7570; }
+    body {
+      background: var(--paper); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+    .wrap { max-width: 440px; }
+    .check {
+      width: 64px; height: 64px; background: var(--ink); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;
+    }
+    .check svg { width: 28px; height: 28px; stroke: var(--paper); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 0.75rem; }
+    p { font-size: 0.95rem; line-height: 1.7; color: var(--muted); margin-bottom: 2rem; }
+    a {
+      display: inline-block; padding: 0.9rem 2rem;
+      background: var(--ink); color: var(--paper);
+      text-decoration: none; font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="check">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>You're all set.</h1>
+    <p>Your order is confirmed and your subscription is active. Check your email for a receipt from Stripe.</p>
+    <a href="/">← Back to home</a>
+  </div>
+</body>
+</html>
