@@ -493,7 +493,10 @@
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: getQty() }),
+        body: JSON.stringify({
+        quantity: getQty(),
+          code: document.getElementById('code').value.trim(),
+        }),
       });
 
       const data = await res.json();
