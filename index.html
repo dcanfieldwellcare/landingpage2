@@ -502,8 +502,9 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-        quantity: getQty(),
+          quantity: getQty(),
           code: document.getElementById('code').value.trim(),
+          watchName: document.getElementById('watch-name').value.trim(),
         }),
       });
 
