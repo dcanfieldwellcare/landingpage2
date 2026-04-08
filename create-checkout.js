@@ -20,10 +20,12 @@ module.exports = async function handler(req, res) {
     const session = await stripe.checkout.sessions.create({
       metadata: {
         code: code || '',
+        watch_name: watchName || '',
       },
       subscription_data: {
         metadata: {
           code: code || '',
+          watch_name: watchName || '',
         },
       },
       mode: 'subscription',
