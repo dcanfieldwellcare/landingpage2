@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { quantity } = req.body;
+  const { quantity, code } = req.body;
 
   // Validate quantity
   const qty = parseInt(quantity, 10);
@@ -18,18 +18,18 @@ module.exports = async function handler(req, res) {
 
   try {
     const session = await stripe.checkout.sessions.create({
+      metadata: {
+        code: code || '',
+      },
+      subscription_data: {
+        metadata: {
+          code: code || '',
+        },
+      },
       mode: 'subscription',
       line_items: [
-        {
-          // ── REPLACE with your Stripe recurring Price ID ──
-          price: process.env.STRIPE_RECURRING_PRICE_ID,
-          quantity: qty,
-        },
-        {
-          // ── REPLACE with your Stripe one-time Price ID ──
-          price: process.env.STRIPE_ONETIME_PRICE_ID,
-          quantity: qty,
-        },
+        { price: process.env.STRIPE_RECURRING_PRICE_ID, quantity: qty },
+        { price: process.env.STRIPE_ONETIME_PRICE_ID,   quantity: qty },
       ],
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success.html`,
       cancel_url:  `${process.env.NEXT_PUBLIC_BASE_URL}/`,
