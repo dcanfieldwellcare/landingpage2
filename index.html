@@ -399,4 +399,187 @@ label {
     <h2>Complete Your Order</h2>
     <p class="subtitle">Select quantity, then proceed to secure payment.</p>
 
-    <!-- Watch User's Name --
+    <!-- Watch User's Name -->
+    <div class="field-group">
+      <label for="watch-name">Watch User's Name</label>
+      <input type="text" id="watch-name" class="text-input" placeholder="Enter name" />
+    </div>
+
+    <!-- Code -->
+    <div class="field-group">
+      <label for="code">Code</label>
+      <input type="text" id="code" class="text-input" placeholder="Enter your code (optional)" />
+    </div>
+
+    <!-- Quantity -->
+    <div class="field-group">
+      <label for="quantity">Quantity</label>
+      <div class="quantity-stepper">
+        <button class="qty-btn" id="decrement" aria-label="Decrease">−</button>
+        <input type="number" id="quantity" value="1" min="1" max="99" readonly />
+        <button class="qty-btn" id="increment" aria-label="Increase">+</button>
+      </div>
+    </div>
+
+    <!-- Add-ons -->
+    <div class="field-group">
+      <label>Add-on Products</label>
+
+      <div class="addon-item" data-price="4.00" data-id="addon1">
+        <div class="addon-left">
+          <input type="checkbox" id="addon1" class="addon-check" />
+          <div class="addon-info">
+            <label for="addon1" class="addon-label">Affiliated Monitoring</label>
+            <span class="addon-desc">Affiliated Monitoring</span>
+          </div>
+        </div>
+        <span class="addon-price">+$<span class="addon-amt">4.00</span>/mo</span>
+      </div>
+
+      <div class="addon-item" data-price="4.00" data-id="addon2">
+        <div class="addon-left">
+          <input type="checkbox" id="addon2" class="addon-check" />
+          <div class="addon-info">
+            <label for="addon2" class="addon-label">Annie: AI Nurse</label>
+            <span class="addon-desc">AI Nurse</span>
+          </div>
+        </div>
+        <span class="addon-price">+$<span class="addon-amt">4.00</span>/mo</span>
+      </div>
+
+    </div>
+
+    <ul class="includes">
+      <li>One-time item delivered to your door</li>
+      <li>Instant access to subscription benefits</li>
+      <li>Cancel subscription anytime</li>
+      <li>Secure checkout via Stripe</li>
+    </ul>
+
+    <div id="error-msg"></div>
+
+    <button id="checkout-btn">
+      <span id="btn-text">Proceed to Payment</span>
+      <span class="arrow" id="btn-arrow">→</span>
+      <span class="spinner" id="btn-spinner"></span>
+    </button>
+
+    <p class="secure-note">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L3 3.5V8c0 3 2.5 5.5 5 6.5 2.5-1 5-3.5 5-6.5V3.5L8 1z"/></svg>
+      Secured &amp; encrypted by Stripe
+    </p>
+  </section>
+</main>
+
+<script>
+  const ONETIME_UNIT   = 140.00;
+  const RECURRING_UNIT = 24.95;
+
+  const qtyInput    = document.getElementById('quantity');
+  const decBtn      = document.getElementById('decrement');
+  const incBtn      = document.getElementById('increment');
+  const onetimeEl   = document.getElementById('onetime-total');
+  const recurringEl = document.getElementById('recurring-total');
+  const totalEl     = document.getElementById('total-display');
+
+  function getQty() { return parseInt(qtyInput.value, 10) || 1; }
+
+  function getAddonTotal() {
+    let total = 0;
+    document.querySelectorAll('.addon-check:checked').forEach(cb => {
+      const item = cb.closest('.addon-item');
+      total += parseFloat(item.dataset.price) * getQty();
+    });
+    return total;
+  }
+
+  function updatePricing() {
+    const qty = getQty();
+    const onetime   = (ONETIME_UNIT * qty).toFixed(2);
+    const recurring = (RECURRING_UNIT * qty).toFixed(2);
+
+    // Update each addon's displayed price
+    document.querySelectorAll('.addon-item').forEach(item => {
+      const unitPrice = parseFloat(item.dataset.price);
+      item.querySelector('.addon-amt').textContent = (unitPrice * qty).toFixed(2);
+    });
+
+    const addonTotal = getAddonTotal();
+    const today = (ONETIME_UNIT * qty + RECURRING_UNIT * qty + addonTotal).toFixed(2);
+
+    onetimeEl.textContent   = onetime;
+    recurringEl.textContent = recurring;
+    totalEl.textContent     = `$${today}`;
+    decBtn.disabled = qty <= 1;
+  }
+
+  decBtn.addEventListener('click', () => {
+    if (getQty() > 1) { qtyInput.value = getQty() - 1; updatePricing(); }
+  });
+  incBtn.addEventListener('click', () => {
+    if (getQty() < 99) { qtyInput.value = getQty() + 1; updatePricing(); }
+  });
+
+  // Addon checkbox listeners
+  document.querySelectorAll('.addon-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.addon-item').classList.toggle('selected', cb.checked);
+      updatePricing();
+    });
+  });
+
+  updatePricing();
+
+  // ── Checkout ──
+  const btn       = document.getElementById('checkout-btn');
+  const btnText   = document.getElementById('btn-text');
+  const btnArrow  = document.getElementById('btn-arrow');
+  const btnSpinner= document.getElementById('btn-spinner');
+  const errorMsg  = document.getElementById('error-msg');
+
+  btn.addEventListener('click', async () => {
+    errorMsg.style.display = 'none';
+    btn.disabled = true;
+    btnText.textContent = 'Redirecting…';
+    btnArrow.style.display = 'none';
+    btnSpinner.style.display = 'block';
+
+    // Collect selected addons
+    const selectedAddons = [];
+    document.querySelectorAll('.addon-check:checked').forEach(cb => {
+      const item = cb.closest('.addon-item');
+      selectedAddons.push({
+        id:    item.dataset.id,
+        price: item.dataset.price,
+      });
+    });
+
+    try {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quantity:  getQty(),
+          code:      document.getElementById('code').value.trim(),
+          watchName: document.getElementById('watch-name').value.trim(),
+          addons:    selectedAddons,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      window.location.href = data.url;
+
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btnText.textContent = 'Proceed to Payment';
+      btnArrow.style.display = 'inline';
+      btnSpinner.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
