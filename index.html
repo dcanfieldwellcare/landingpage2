@@ -474,6 +474,8 @@ label {
 <script>
   const ONETIME_UNIT  = 4.00;
   const RECURRING_UNIT = 4.00;
+  const ADDON1_UNIT  = 4.00;
+  const ADDON2_UNIT = 4.00;
 
   const qtyInput    = document.getElementById('quantity');
   const decBtn      = document.getElementById('decrement');
@@ -497,6 +499,8 @@ label {
     const qty = getQty();
     const onetime   = (ONETIME_UNIT * qty).toFixed(2);
     const recurring = (RECURRING_UNIT * qty).toFixed(2);
+    const ad1   = (ADDON1_UNIT * qty).toFixed(2);
+    const ad1 = (ADDON2_UNIT * qty).toFixed(2);
 
     // Update each addon's displayed price
     document.querySelectorAll('.addon-item').forEach(item => {
@@ -505,7 +509,7 @@ label {
     });
 
     const addonTotal = getAddonTotal();
-    const today = (ONETIME_UNIT * qty + RECURRING_UNIT * qty + addonTotal).toFixed(2);
+    const today = (ONETIME_UNIT * qty + RECURRING_UNIT + ADDON1_UNIT * qty + ADDON2_UNIT * qty + RECURRING_UNIT  * qty + addonTotal).toFixed(2);
 
     onetimeEl.textContent   = onetime;
     recurringEl.textContent = recurring;
