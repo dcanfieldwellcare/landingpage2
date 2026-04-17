@@ -1,4 +1,5 @@
 const Stripe = require('stripe');
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 module.exports = async function handler(req, res) {
@@ -7,7 +8,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { quantity, code, watchName, addons } = req.body;
+  const { quantity, addons = [], code, watchName } = req.body;
 
   // Validate quantity
   const qty = parseInt(quantity, 10);
@@ -15,41 +16,54 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid quantity.' });
   }
 
-  // Map addon IDs to their Stripe recurring Price IDs
-  const ADDON_PRICE_IDS = {
-    addon1: process.env.STRIPE_ADDON1_PRICE_ID,
-    addon2: process.env.STRIPE_ADDON2_PRICE_ID,
-  };
+  // Validate addon stripe price IDs (whitelist)
+  const VALID_ADDON_PRICES = new Set([
+    'price_1TJzVmIjMp6EX81N53iwtRJj', // Affiliated Monitoring
+    'price_1TJzY1IjMp6EX81NDAxtaUNr', // Annie: AI Nurse
+  ]);
 
-  const addonLineItems = (addons || [])
-    .filter(a => ADDON_PRICE_IDS[a.id])
-    .map(a => ({
-      price: ADDON_PRICE_IDS[a.id],
-      quantity: qty,
-    }));
+  const addonLineItems = [];
+  for (const addon of addons) {
+    if (!VALID_ADDON_PRICES.has(addon.stripePrice)) {
+      return res.status(400).json({ error: `Invalid addon price ID: ${addon.stripePrice}` });
+    }
+    addonLineItems.push({ price: addon.stripePrice, quantity: qty });
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
-      metadata: {
-        code:       code      || '',
-        watch_name: watchName || '',
-      },
-      subscription_data: {
-        metadata: {
-          code:       code      || '',
-          watch_name: watchName || '',
-        },
-      },
       mode: 'subscription',
       line_items: [
-        { price: process.env.STRIPE_RECURRING_PRICE_ID, quantity: qty },
-        { price: process.env.STRIPE_ONETIME_PRICE_ID,   quantity: qty },
+        {
+          // Recurring subscription
+          price:    process.env.STRIPE_RECURRING_PRICE_ID,
+          quantity: qty,
+        },
         ...addonLineItems,
       ],
+      subscription_data: {
+        add_invoice_items: [
+          {
+            // One-time fee billed on the first invoice
+            price:    process.env.STRIPE_ONETIME_PRICE_ID,
+            quantity: qty,
+          },
+        ],
+        metadata: {
+          watchName: watchName || '',
+          code:      code || '',
+        },
+      },
+      metadata: {
+        watchName: watchName || '',
+        code:      code || '',
+      },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success.html`,
       cancel_url:  `${process.env.NEXT_PUBLIC_BASE_URL}/`,
     });
+
     return res.status(200).json({ url: session.url });
+
   } catch (err) {
     console.error('Stripe error:', err.message);
     return res.status(500).json({ error: err.message });
