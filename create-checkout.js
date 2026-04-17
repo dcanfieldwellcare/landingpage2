@@ -2,13 +2,29 @@ const Stripe = require('stripe');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    if (req.body && typeof req.body === 'object') return resolve(req.body);
+    let data = '';
+    req.on('data', chunk => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(data)); }
+      catch (e) { reject(new Error('Invalid JSON')); }
+    });
+    req.on('error', reject);
+  });
+}
+
 module.exports = async function handler(req, res) {
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { quantity, addons = [], code, watchName } = req.body;
+  const body = await parseBody(req);
+  const { quantity, addons = [], code, watchName } = body;
+
+  console.log('Received body:', JSON.stringify({ quantity, addons, code, watchName }));
 
   // Validate quantity
   const qty = parseInt(quantity, 10);
