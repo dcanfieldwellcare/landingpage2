@@ -545,13 +545,18 @@ label {
     btnSpinner.style.display = 'block';
 
     // Collect selected addons
+    const stripeMap = {
+      'addon1': 'price_1TJzVmIjMp6EX81N53iwtRJj',
+      'addon2': 'price_1TJzY1IjMp6EX81NDAxtaUNr',
+    };
     const selectedAddons = [];
     document.querySelectorAll('.addon-check:checked').forEach(cb => {
       const item = cb.closest('.addon-item');
+      const addonId = item.dataset.id;
       selectedAddons.push({
-        id:          item.dataset.id,
+        id:          addonId,
         price:       item.dataset.price,
-        stripePrice: item.dataset.stripePrice,
+        stripePrice: stripeMap[addonId],
       });
     });
 
