@@ -29,11 +29,11 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid quantity.' });
   }
 
-  // Validate addon stripe price IDs (whitelist from env vars)
+  // Validate addon stripe price IDs (whitelist)
   const VALID_ADDON_PRICES = new Set([
-    process.env.STRIPE_ADDON1_PRICE_ID, // Affiliated Monitoring
-    process.env.STRIPE_ADDON2_PRICE_ID, // Annie: AI Nurse
-  ].filter(Boolean));
+    'price_1TJzVmIjMp6EX81N53iwtRJj', // Affiliated Monitoring
+    'price_1TJzY1IjMp6EX81NDAxtaUNr', // Annie: AI Nurse
+  ]);
 
   const addonLineItems = [];
   for (const addon of addons) {
