@@ -425,7 +425,7 @@ label {
     <div class="field-group">
       <label>Add-on Products</label>
 
-      <div class="addon-item" data-price="4.00" data-id="addon1">
+      <div class="addon-item" data-price="4.00" data-id="addon1" data-stripe-price="price_1TJzVmIjMp6EX81N53iwtRJj">
         <div class="addon-left">
           <input type="checkbox" id="addon1" class="addon-check" />
           <div class="addon-info">
@@ -436,7 +436,7 @@ label {
         <span class="addon-price">+$<span class="addon-amt">4.00</span>/mo</span>
       </div>
 
-      <div class="addon-item" data-price="4.00" data-id="addon2">
+      <div class="addon-item" data-price="4.00" data-id="addon2" data-stripe-price="price_1TJzY1IjMp6EX81NDAxtaUNr">
         <div class="addon-left">
           <input type="checkbox" id="addon2" class="addon-check" />
           <div class="addon-info">
@@ -549,8 +549,9 @@ label {
     document.querySelectorAll('.addon-check:checked').forEach(cb => {
       const item = cb.closest('.addon-item');
       selectedAddons.push({
-        id:    item.dataset.id,
-        price: item.dataset.price,
+        id:          item.dataset.id,
+        price:       item.dataset.price,
+        stripePrice: item.dataset.stripePrice,
       });
     });
 
