@@ -4,93 +4,123 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checkout</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
   <style>
-    /* (unchanged styles — trimmed here for clarity in explanation) */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --ink: #0f0e0c;
       --paper: #f5f2ec;
-      --cream: #ede9e0;
-      --gold: #b8943f;
-      --gold-light: #d4ae62;
-      --red: #c0392b;
       --muted: #7a7570;
       --border: #d5cfc4;
     }
 
-    html, body {
-      height: 100%;
+    body {
+      font-family: 'DM Sans', sans-serif;
       background: var(--paper);
       color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-    }
-
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-
-    header {
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
     }
 
     main {
-      flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
       max-width: 1000px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 4rem 2rem;
+      margin: auto;
+      padding: 3rem 2rem;
+      gap: 3rem;
     }
-
-    .product-info { padding-right: 4rem; border-right: 1px solid var(--border); }
-    .checkout-form { padding-left: 4rem; }
 
     .product-name {
       font-family: 'Playfair Display', serif;
-      font-size: 2.4rem;
-      margin-bottom: 1.25rem;
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
     }
 
     .product-desc {
       color: var(--muted);
       margin-bottom: 2rem;
-      line-height: 1.7;
     }
 
     .includes {
       list-style: none;
+      margin-top: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      margin-bottom: 2.5rem;
+      gap: 0.5rem;
+      color: var(--muted);
     }
 
-    .includes li { color: var(--muted); font-size: 0.85rem; }
+    .price-box {
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 1.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .field-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .qty {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+
+    .qty button {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: white;
+      cursor: pointer;
+    }
+
+    .qty input {
+      width: 60px;
+      text-align: center;
+      border: none;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
 
     #checkout-btn {
       width: 100%;
-      padding: 1.1rem;
+      padding: 1rem;
+      margin-top: 2rem;
       background: var(--ink);
-      color: var(--paper);
+      color: white;
       border: none;
       cursor: pointer;
     }
 
-    #total-display {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-    }
-
-    @media (max-width: 700px) {
-      main { grid-template-columns: 1fr; }
-      .product-info { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
-      .checkout-form { padding-left: 0; }
+    .product-option {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      color: var(--ink);
     }
   </style>
 </head>
@@ -98,141 +128,200 @@
 <body>
 
 <main>
+
   <!-- LEFT -->
-  <section class="product-info">
+  <section>
     <h1 class="product-name"></h1>
     <p class="product-desc"></p>
 
-    <div class="pricing-breakdown">
-      <div class="price-row">
-        <div>One-time</div>
-        <div>$<span id="onetime-total"></span></div>
+    <div class="price-box">
+      <div class="row">
+        <span>One-time</span>
+        <span>$<span id="onetime-total"></span></span>
       </div>
 
-      <div class="price-row">
-        <div>Monthly</div>
-        <div>$<span id="recurring-total"></span></div>
+      <div class="row">
+        <span>Monthly</span>
+        <span>$<span id="recurring-total"></span></span>
       </div>
 
-      <div class="price-total">
-        <span>Today's total</span>
+      <div class="row total">
+        <span>Total</span>
         <span id="total-display"></span>
       </div>
     </div>
+
+    <ul class="includes"></ul>
   </section>
 
   <!-- RIGHT -->
-  <section class="checkout-form">
-    <label>Quantity</label>
-    <div>
-      <button id="decrement">−</button>
-      <input id="quantity" type="number" value="1" min="1" max="99" readonly />
-      <button id="increment">+</button>
+  <section>
+
+    <div class="field-group">
+      <label>Choose Product</label>
+      <div id="product-options"></div>
     </div>
 
-    <ul class="includes"></ul>
+    <div class="field-group">
+      <label>Quantity</label>
+      <div class="qty">
+        <button id="decrement">−</button>
+        <input id="quantity" value="1" readonly />
+        <button id="increment">+</button>
+      </div>
+    </div>
 
     <button id="checkout-btn">Proceed to Payment</button>
+
   </section>
+
 </main>
 
 <script>
-  // ─────────────────────────────
-  // 1. PRODUCTS ARRAY
-  // ─────────────────────────────
-  const products = [
-    {
-      id: "rpm",
-      name: "HealthAssist RPM",
-      description: "One Time Setup Fee + Monthly Subscription",
-      oneTimePrice: 140.00,
-      monthlyPrice: 24.95,
-      includes: [
-        "One-time item delivered to your door",
-        "Instant access to subscription benefits",
-        "Cancel subscription anytime",
-        "Secure checkout via Stripe"
-      ]
-    }
-  ];
+/* ─────────────────────────────
+   PRODUCTS
+───────────────────────────── */
+const products = [
+  {
+    id: "rpm",
+    name: "HealthAssist RPM",
+    description: "One Time Setup Fee + Monthly Subscription",
+    oneTimePrice: 140.00,
+    monthlyPrice: 24.95,
+    includes: [
+      "One-time device shipped",
+      "Remote monitoring access",
+      "Cancel anytime",
+      "Secure Stripe checkout"
+    ]
+  },
+  {
+    id: "care",
+    name: "CarePlus Monitoring",
+    description: "Monthly monitoring plan",
+    oneTimePrice: 0,
+    monthlyPrice: 19.95,
+    includes: [
+      "Monthly health tracking",
+      "Nurse support",
+      "Email reports",
+      "Cancel anytime"
+    ]
+  }
+];
 
-  const product = products[0];
+let activeProduct = products[0];
 
-  // ─────────────────────────────
-  // 2. RENDER PRODUCT DATA
-  // ─────────────────────────────
-  document.querySelector('.product-name').textContent = product.name;
-  document.querySelector('.product-desc').textContent = product.description;
+/* ─────────────────────────────
+   DOM
+───────────────────────────── */
+const nameEl = document.querySelector('.product-name');
+const descEl = document.querySelector('.product-desc');
+const includesEl = document.querySelector('.includes');
 
-  const includesList = document.querySelector('.includes');
-  includesList.innerHTML = product.includes
+const onetimeEl = document.getElementById('onetime-total');
+const recurringEl = document.getElementById('recurring-total');
+const totalEl = document.getElementById('total-display');
+
+const qtyInput = document.getElementById('quantity');
+const decBtn = document.getElementById('decrement');
+const incBtn = document.getElementById('increment');
+
+const productOptionsEl = document.getElementById('product-options');
+
+/* ─────────────────────────────
+   RENDER PRODUCTS (RADIO)
+───────────────────────────── */
+function renderProductOptions() {
+  productOptionsEl.innerHTML = products.map(p => `
+    <label class="product-option">
+      <input type="radio" name="product" value="${p.id}" ${p.id === activeProduct.id ? "checked" : ""}>
+      ${p.name}
+    </label>
+  `).join('');
+
+  document.querySelectorAll('input[name="product"]').forEach(radio => {
+    radio.addEventListener('change', e => {
+      setProduct(e.target.value);
+    });
+  });
+}
+
+/* ─────────────────────────────
+   SET PRODUCT
+───────────────────────────── */
+function setProduct(id) {
+  activeProduct = products.find(p => p.id === id);
+
+  nameEl.textContent = activeProduct.name;
+  descEl.textContent = activeProduct.description;
+
+  includesEl.innerHTML = activeProduct.includes
     .map(i => `<li>${i}</li>`)
     .join('');
 
-  // ─────────────────────────────
-  // 3. PRICING LOGIC
-  // ─────────────────────────────
-  const qtyInput = document.getElementById('quantity');
-  const decBtn = document.getElementById('decrement');
-  const incBtn = document.getElementById('increment');
-
-  const onetimeEl = document.getElementById('onetime-total');
-  const recurringEl = document.getElementById('recurring-total');
-  const totalEl = document.getElementById('total-display');
-
-  function getQty() {
-    return parseInt(qtyInput.value, 10) || 1;
-  }
-
-  function updatePricing() {
-    const qty = getQty();
-
-    const onetime = product.oneTimePrice * qty;
-    const recurring = product.monthlyPrice * qty;
-    const total = onetime + recurring;
-
-    onetimeEl.textContent = onetime.toFixed(2);
-    recurringEl.textContent = recurring.toFixed(2);
-    totalEl.textContent = `$${total.toFixed(2)}`;
-
-    decBtn.disabled = qty <= 1;
-  }
-
-  decBtn.onclick = () => {
-    if (getQty() > 1) qtyInput.value = getQty() - 1;
-    updatePricing();
-  };
-
-  incBtn.onclick = () => {
-    if (getQty() < 99) qtyInput.value = getQty() + 1;
-    updatePricing();
-  };
-
   updatePricing();
+}
 
-  // ─────────────────────────────
-  // 4. CHECKOUT
-  // ─────────────────────────────
-  document.getElementById('checkout-btn').addEventListener('click', async () => {
-    try {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: getQty()
-        })
-      });
+/* ─────────────────────────────
+   PRICING
+───────────────────────────── */
+function getQty() {
+  return parseInt(qtyInput.value, 10) || 1;
+}
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+function updatePricing() {
+  const qty = getQty();
 
-      window.location.href = data.url;
+  const onetime = activeProduct.oneTimePrice * qty;
+  const recurring = activeProduct.monthlyPrice * qty;
 
-    } catch (err) {
-      alert(err.message);
-    }
+  onetimeEl.textContent = onetime.toFixed(2);
+  recurringEl.textContent = recurring.toFixed(2);
+  totalEl.textContent = `$${(onetime + recurring).toFixed(2)}`;
+
+  decBtn.disabled = qty <= 1;
+}
+
+/* ─────────────────────────────
+   QUANTITY
+───────────────────────────── */
+decBtn.onclick = () => {
+  if (getQty() > 1) qtyInput.value = getQty() - 1;
+  updatePricing();
+};
+
+incBtn.onclick = () => {
+  if (getQty() < 99) qtyInput.value = getQty() + 1;
+  updatePricing();
+};
+
+/* ─────────────────────────────
+   CHECKOUT
+───────────────────────────── */
+document.getElementById('checkout-btn').addEventListener('click', async () => {
+  const res = await fetch('/api/create-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      productId: activeProduct.id,
+      quantity: getQty()
+    })
   });
+
+  const data = await res.json();
+  if (!res.ok) return alert(data.error);
+
+  window.location.href = data.url;
+});
+
+/* ─────────────────────────────
+   INIT
+───────────────────────────── */
+renderProductOptions();
+setProduct(activeProduct.id);
+updatePricing();
+
 </script>
 
 </body>
