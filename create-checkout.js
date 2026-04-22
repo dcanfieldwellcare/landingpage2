@@ -1,44 +1,58 @@
-const Stripe = require('stripe');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-module.exports = async function handler(req, res) {
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  const { quantity = 1, code, watchName, addons = [] } = req.body;
+  const qty = Math.max(1, Math.min(99, parseInt(quantity, 10) || 1));
 
-  const { quantity } = req.body;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `https://${req.headers.host}`;
 
-  // Validate quantity
-  const qty = parseInt(quantity, 10);
-  if (!qty || qty < 1 || qty > 99) {
-    return res.status(400).json({ error: 'Invalid quantity.' });
+  // Map addon IDs to server-side price IDs from Vercel env vars
+  const ADDON_PRICE_MAP = {
+    addon1: process.env.STRIPE_AFFILIATED_PRICE_ID,
+    addon2: process.env.STRIPE_ANNIE_PRICE_ID,
+  };
+
+  // Core line items
+  const lineItems = [
+    {
+      price: process.env.STRIPE_ONETIME_PRICE_ID,
+      quantity: qty,
+    },
+    {
+      price: process.env.STRIPE_RECURRING_PRICE_ID,
+      quantity: qty,
+    },
+  ];
+
+  // Add selected addon subscriptions at quantity 1 (not tied to qty stepper)
+  for (const addon of addons) {
+    const priceId = ADDON_PRICE_MAP[addon.id];
+    if (priceId) {
+      lineItems.push({
+        price: priceId,
+        quantity: 1,
+      });
+    }
   }
 
   try {
     const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
       mode: 'subscription',
-      line_items: [
-        {
-          // ── REPLACE with your Stripe recurring Price ID ──
-          price: process.env.STRIPE_RECURRING_PRICE_ID,
-          quantity: qty,
-        },
-        {
-          // ── REPLACE with your Stripe one-time Price ID ──
-          price: process.env.STRIPE_ONETIME_PRICE_ID,
-          quantity: qty,
-        },
-      ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success.html`,
-      cancel_url:  `${process.env.NEXT_PUBLIC_BASE_URL}/`,
+      success_url: `${baseUrl}/success.html`,
+      cancel_url: `${baseUrl}/`,
+      metadata: {
+        watchName: watchName || '',
+        code: code || '',
+      },
     });
 
-    return res.status(200).json({ url: session.url });
-
+    res.status(200).json({ url: session.url });
   } catch (err) {
     console.error('Stripe error:', err.message);
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
