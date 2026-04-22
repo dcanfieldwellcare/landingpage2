@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Checkout</title>
+  <title>HealthAssist RPM - Checkout</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink:    #0f0e0c;
-      --paper:  #f5f2ec;
-      --cream:  #ede9e0;
-      --gold:   #b8943f;
+      --ink:     #0f0e0c;
+      --paper:   #f5f2ec;
+      --cream:   #ede9e0;
+      --gold:    #b8943f;
       --gold-light: #d4ae62;
-      --red:    #c0392b;
-      --muted:  #7a7570;
-      --border: #d5cfc4;
+      --red:     #c0392b;
+      --muted:   #7a7570;
+      --border:  #d5cfc4;
     }
 
     html, body {
@@ -33,29 +33,6 @@
       min-height: 100vh;
     }
 
-    /* ── HEADER ── */
-    header {
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    header .logo-mark {
-      width: 32px; height: 32px;
-      background: var(--ink);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    header .logo-mark svg { width: 16px; height: 16px; fill: var(--paper); }
-
-    header .brand {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.03em;
-    }
-
     /* ── MAIN ── */
     main {
       flex: 1;
@@ -69,19 +46,9 @@
       align-items: start;
     }
 
-    /* LEFT: product info */
     .product-info {
       padding-right: 4rem;
       border-right: 1px solid var(--border);
-    }
-
-    .eyebrow {
-      font-size: 0.7rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1rem;
     }
 
     .product-name {
@@ -96,6 +63,7 @@
       line-height: 1.7;
       color: var(--muted);
       margin-bottom: 2rem;
+      min-height: 3rem;
     }
 
     .divider {
@@ -104,90 +72,49 @@
       margin: 2rem 0;
     }
 
-    /* Pricing breakdown */
-    .pricing-breakdown {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
     .price-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 1rem;
+      margin-bottom: 1rem;
     }
 
     .price-row .label {
       font-size: 0.85rem;
       color: var(--muted);
-      line-height: 1.4;
     }
 
     .price-row .label strong {
       display: block;
       color: var(--ink);
       font-weight: 500;
-      font-size: 0.9rem;
     }
 
     .price-row .amount {
       font-family: 'Playfair Display', serif;
       font-size: 1rem;
-      white-space: nowrap;
       text-align: right;
-    }
-
-    .price-row .amount .per {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.75rem;
-      color: var(--muted);
-      display: block;
     }
 
     .price-total {
       border-top: 1px solid var(--border);
       padding-top: 1rem;
-      margin-top: 0.5rem;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
     }
 
-    .price-total .label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 500;
-      color: var(--muted);
-    }
-
     #total-display {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem;
-      transition: all 0.2s ease;
+      color: var(--ink);
     }
 
-    /* RIGHT: checkout form */
-    .checkout-form {
-      padding-left: 4rem;
-    }
+    /* ── FORM ELEMENTS ── */
+    .checkout-form { padding-left: 4rem; }
 
-    .checkout-form h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .checkout-form .subtitle {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 2.5rem;
-    }
-
-    .field-group {
-      margin-bottom: 2rem;
-    }
+    .field-group { margin-bottom: 1.5rem; }
 
     label {
       display: block;
@@ -199,11 +126,19 @@
       margin-bottom: 0.6rem;
     }
 
-    /* Quantity stepper */
+    select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid var(--border);
+      background: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      outline: none;
+    }
+
     .quantity-stepper {
       display: flex;
-      align-items: center;
-      gap: 0;
       border: 1px solid var(--border);
       background: white;
       width: fit-content;
@@ -212,296 +147,197 @@
     }
 
     .qty-btn {
-      width: 48px; height: 56px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: var(--ink);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-      user-select: none;
+      width: 48px; height: 48px;
+      border: none; background: none;
+      cursor: pointer; font-size: 1.2rem;
     }
-
-    .qty-btn:hover { background: var(--cream); }
-    .qty-btn:active { background: var(--border); }
 
     #quantity {
-      width: 64px; height: 56px;
-      border: none;
+      width: 50px; text-align: center; border: none;
       border-left: 1px solid var(--border);
       border-right: 1px solid var(--border);
-      background: white;
-      text-align: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-      color: var(--ink);
-      outline: none;
-      -moz-appearance: textfield;
-    }
-    #quantity::-webkit-inner-spin-button,
-    #quantity::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-    /* Includes list */
-    .includes {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      margin-bottom: 2.5rem;
+      font-family: 'Playfair Display', serif; font-size: 1.2rem;
     }
 
-    .includes li {
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: var(--muted);
-    }
-
-    .includes li::before {
-      content: '';
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--ink);
-      flex-shrink: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='%23f5f2ec' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    }
-
-    /* CTA button */
     #checkout-btn {
       width: 100%;
-      padding: 1.1rem 2rem;
+      padding: 1.1rem;
       background: var(--ink);
       color: var(--paper);
       border: none;
       border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
       text-transform: uppercase;
+      letter-spacing: 0.1em;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      transition: background 0.2s, transform 0.15s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #checkout-btn:hover { background: #2a2825; }
-    #checkout-btn:active { transform: scale(0.99); }
-    #checkout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    #checkout-btn .arrow { transition: transform 0.2s; }
-    #checkout-btn:hover .arrow { transform: translateX(4px); }
-
-    .secure-note {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
       margin-top: 1rem;
-      font-size: 0.75rem;
-      color: var(--muted);
     }
 
-    .secure-note svg { width: 12px; height: 12px; opacity: 0.5; }
+    .includes { list-style: none; margin: 1.5rem 0; color: var(--muted); font-size: 0.85rem; }
+    .includes li { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .includes li::before { content: '✓'; color: var(--gold); font-weight: bold; }
 
-    /* Error */
-    #error-msg {
-      display: none;
-      background: #fdf0ee;
-      border: 1px solid #e8c4bf;
-      color: var(--red);
-      font-size: 0.82rem;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-
-    /* Loading spinner */
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(245,242,236,0.3);
-      border-top-color: var(--paper);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
-      main {
-        grid-template-columns: 1fr;
-        padding: 2rem 1.5rem;
-        gap: 2.5rem;
-      }
-      .product-info { padding-right: 0; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 2.5rem; }
-      .checkout-form { padding-left: 0; }
+      main { grid-template-columns: 1fr; padding: 2rem 1rem; }
+      .product-info { padding-right: 0; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
+      .checkout-form { padding-left: 0; margin-top: 2rem; }
     }
   </style>
 </head>
 <body>
 
-<!--header>
-  <div class="logo-mark">
-    <svg viewBox="0 0 16 16"><path d="M8 2L10.5 6.5H14L10.5 9.5L12 14L8 11L4 14L5.5 9.5L2 6.5H5.5Z"/></svg>
-  </div>
-  <span class="brand">Your Brand</span>
-</header-->
-
 <main>
-  <!-- LEFT: Product Info -->
   <section class="product-info">
-    <!--p class="eyebrow">Limited Availability</p-->
-    <h1 class="product-name">HealthAssist RPM</h1>
-    <p class="product-desc">
-      One Time Setup Fee + Monthly Subscription
-    </p>
+    <h1 class="product-name">Loading...</h1>
+    <p class="product-desc">Please select a plan to continue.</p>
 
     <div class="divider"></div>
 
     <div class="pricing-breakdown">
       <div class="price-row">
-        <div class="label">
-          <strong>One-time fee</strong>
-          e.g. hardware, kit, setup
-        </div>
-        <div class="amount">
-          $<span id="onetime-total">140.00</span>
-          <span class="per">once</span>
-        </div>
+        <div class="label"><strong>One-time fee</strong>Setup & hardware</div>
+        <div class="amount">$<span id="onetime-total">0.00</span></div>
       </div>
       <div class="price-row">
-        <div class="label">
-          <strong>Monthly subscription</strong>
-          ongoing access &amp; support
-        </div>
-        <div class="amount">
-          $<span id="recurring-total">21.95</span>
-          <span class="per">/ mo</span>
-        </div>
+        <div class="label"><strong>Monthly subscription</strong>Access & support</div>
+        <div class="amount">$<span id="recurring-total">0.00</span></div>
       </div>
       <div class="price-total">
         <span class="label">Today's total</span>
-        <span id="total-display">$68.00</span>
+        <span id="total-display">$0.00</span>
       </div>
     </div>
   </section>
 
-  <!-- RIGHT: Checkout -->
   <section class="checkout-form">
     <h2>Complete Your Order</h2>
-    <p class="subtitle">Select quantity, then proceed to secure payment.</p>
+    
+    <div class="field-group">
+      <label for="product-select">Select Plan</label>
+      <select id="product-select">
+        </select>
+    </div>
 
     <div class="field-group">
       <label for="quantity">Quantity</label>
       <div class="quantity-stepper">
-        <button class="qty-btn" id="decrement" aria-label="Decrease">−</button>
-        <input type="number" id="quantity" value="1" min="1" max="99" readonly />
-        <button class="qty-btn" id="increment" aria-label="Increase">+</button>
+        <button class="qty-btn" id="decrement">−</button>
+        <input type="number" id="quantity" value="1" readonly />
+        <button class="qty-btn" id="increment">+</button>
       </div>
     </div>
 
     <ul class="includes">
-      <li>One-time item delivered to your door</li>
-      <li>Instant access to subscription benefits</li>
-      <li>Cancel subscription anytime</li>
-      <li>Secure checkout via Stripe</li>
+      <li>Secure hardware delivery</li>
+      <li>Instant app access</li>
+      <li>Encrypted data monitoring</li>
+      <li>Cancel anytime</li>
     </ul>
 
-    <div id="error-msg"></div>
-
-    <button id="checkout-btn">
-      <span id="btn-text">Proceed to Payment</span>
-      <span class="arrow" id="btn-arrow">→</span>
-      <span class="spinner" id="btn-spinner"></span>
-    </button>
-
-    <p class="secure-note">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L3 3.5V8c0 3 2.5 5.5 5 6.5 2.5-1 5-3.5 5-6.5V3.5L8 1z"/></svg>
-      Secured &amp; encrypted by Stripe
-    </p>
+    <button id="checkout-btn">Proceed to Payment</button>
   </section>
 </main>
 
 <script>
-  // ── CONFIG: update these prices to match your Stripe dashboard ──
-  const ONETIME_UNIT  = 140.00;  // price per unit, one-time
-  const RECURRING_UNIT = 24.95; // price per unit, monthly
+  // ── PRODUCT DATA ──
+  const products = [
+    {
+      id: 'rpm-standard',
+      name: 'HealthAssist RPM',
+      onetime: 140.00,
+      recurring: 24.95,
+      description: 'Our standard remote patient monitoring setup with core health tracking.'
+    },
+    {
+      id: 'rpm-pro',
+      name: 'HealthAssist PRO',
+      onetime: 250.00,
+      recurring: 45.00,
+      description: 'Advanced monitoring kit with 24/7 priority support and secondary sensors.'
+    },
+    {
+      id: 'rpm-lite',
+      name: 'HealthAssist LITE',
+      onetime: 75.00,
+      recurring: 15.00,
+      description: 'Essential monitoring for basic health check-ins and monthly reporting.'
+    }
+  ];
 
-  // ── Quantity stepper ──
-  const qtyInput   = document.getElementById('quantity');
-  const decBtn     = document.getElementById('decrement');
-  const incBtn     = document.getElementById('increment');
-  const onetimeEl  = document.getElementById('onetime-total');
-  const recurringEl= document.getElementById('recurring-total');
-  const totalEl    = document.getElementById('total-display');
+  let currentProduct = products[0];
 
-  function getQty() { return parseInt(qtyInput.value, 10) || 1; }
+  // ── UI ELEMENTS ──
+  const productSelect = document.getElementById('product-select');
+  const qtyInput      = document.getElementById('quantity');
+  const onetimeEl     = document.getElementById('onetime-total');
+  const recurringEl   = document.getElementById('recurring-total');
+  const totalEl       = document.getElementById('total-display');
+  const prodNameEl    = document.querySelector('.product-name');
+  const prodDescEl    = document.querySelector('.product-desc');
+
+  // ── INITIALIZE SELECT ──
+  products.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name} ($${p.onetime} + $${p.recurring}/mo)`;
+    productSelect.appendChild(opt);
+  });
 
   function updatePricing() {
-    const qty = getQty();
-    const onetime   = (ONETIME_UNIT   * qty).toFixed(2);
-    const recurring = (RECURRING_UNIT * qty).toFixed(2);
-    const today     = (ONETIME_UNIT * qty + RECURRING_UNIT * qty).toFixed(2);
-    onetimeEl.textContent   = onetime;
-    recurringEl.textContent = recurring;
-    totalEl.textContent     = `$${today}`;
-    decBtn.disabled = qty <= 1;
+    const qty = parseInt(qtyInput.value) || 1;
+    const onetimeTotal = (currentProduct.onetime * qty).toFixed(2);
+    const recurringTotal = (currentProduct.recurring * qty).toFixed(2);
+    const todayTotal = (parseFloat(onetimeTotal) + parseFloat(recurringTotal)).toFixed(2);
+
+    prodNameEl.textContent = currentProduct.name;
+    prodDescEl.textContent = currentProduct.description;
+    onetimeEl.textContent = onetimeTotal;
+    recurringEl.textContent = recurringTotal;
+    totalEl.textContent = `$${todayTotal}`;
   }
 
-  decBtn.addEventListener('click', () => {
-    if (getQty() > 1) { qtyInput.value = getQty() - 1; updatePricing(); }
+  // ── EVENT LISTENERS ──
+  productSelect.addEventListener('change', (e) => {
+    currentProduct = products.find(p => p.id === e.target.value);
+    updatePricing();
   });
 
-  incBtn.addEventListener('click', () => {
-    if (getQty() < 99) { qtyInput.value = getQty() + 1; updatePricing(); }
+  document.getElementById('increment').addEventListener('click', () => {
+    qtyInput.value = parseInt(qtyInput.value) + 1;
+    updatePricing();
   });
 
-  updatePricing();
+  document.getElementById('decrement').addEventListener('click', () => {
+    if (qtyInput.value > 1) {
+      qtyInput.value = parseInt(qtyInput.value) - 1;
+      updatePricing();
+    }
+  });
 
-  // ── Checkout ──
-  const btn        = document.getElementById('checkout-btn');
-  const btnText    = document.getElementById('btn-text');
-  const btnArrow   = document.getElementById('btn-arrow');
-  const btnSpinner = document.getElementById('btn-spinner');
-  const errorMsg   = document.getElementById('error-msg');
-
-  btn.addEventListener('click', async () => {
-    errorMsg.style.display = 'none';
-    btn.disabled    = true;
-    btnText.textContent = 'Redirecting…';
-    btnArrow.style.display  = 'none';
-    btnSpinner.style.display = 'block';
+  document.getElementById('checkout-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('checkout-btn');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting...';
 
     try {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: getQty() }),
+        body: JSON.stringify({ 
+          productId: currentProduct.id,
+          quantity: parseInt(qtyInput.value) 
+        }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
-
-      window.location.href = data.url;
+      if (data.url) window.location.href = data.url;
     } catch (err) {
-      errorMsg.textContent    = err.message;
-      errorMsg.style.display  = 'block';
-      btn.disabled            = false;
-      btnText.textContent     = 'Proceed to Payment';
-      btnArrow.style.display  = 'inline';
-      btnSpinner.style.display = 'none';
+      alert('Checkout error. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Proceed to Payment';
     }
   });
+
+  // Start logic
+  updatePricing();
 </script>
 </body>
 </html>
