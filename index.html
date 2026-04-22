@@ -459,7 +459,7 @@ label {
             <span class="addon-desc">Live agents monitoring the people that matter most.</span>
           </div>
         </div>
-        <span class="addon-price">+$4.00/mo</span>
+        <span class="addon-price" id="card-addon1">+$4.00/mo</span>
       </div>
 
       <div class="addon-item" data-id="addon2" data-price="4.00">
@@ -470,7 +470,7 @@ label {
             <span class="addon-desc">AI Powered Nurse Assistant</span>
           </div>
         </div>
-        <span class="addon-price">+$4.00/mo</span>
+        <span class="addon-price" id="card-addon2">+$4.00/mo</span>
       </div>
     </div>
 
@@ -517,20 +517,25 @@ label {
     onetimeEl.textContent   = onetime;
     recurringEl.textContent = recurring;
 
-    // Addons are always quantity: 1 — price never changes with the qty stepper
+    // Addons scale with qty
     let addonTotal = 0;
 
     document.querySelectorAll('.addon-check').forEach(cb => {
-      const item    = cb.closest('.addon-item');
-      const addonId = item.dataset.id;
-      const price   = parseFloat(item.dataset.price);
+      const item       = cb.closest('.addon-item');
+      const addonId    = item.dataset.id;
+      const unitPrice  = parseFloat(item.dataset.price);
+      const scaled     = unitPrice * qty;
       const summaryRow = document.getElementById('summary-' + addonId);
       const summaryAmt = document.getElementById('summary-' + addonId + '-amt');
 
+      // Always update the addon card price to reflect current qty
+      const cardPrice = document.getElementById('card-' + addonId);
+      if (cardPrice) cardPrice.textContent = `+$${scaled.toFixed(2)}/mo`;
+
       if (cb.checked) {
-        addonTotal += price;
+        addonTotal += scaled;
         if (summaryRow) summaryRow.style.display = 'flex';
-        if (summaryAmt) summaryAmt.textContent = price.toFixed(2);
+        if (summaryAmt) summaryAmt.textContent = scaled.toFixed(2);
       } else {
         if (summaryRow) summaryRow.style.display = 'none';
       }
