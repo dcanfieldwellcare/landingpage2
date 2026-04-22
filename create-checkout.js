@@ -1,72 +1,44 @@
 const Stripe = require('stripe');
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-  const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+module.exports = async function handler(req, res) {
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-  const { quantity = 1, code, watchName, productId, addons = [] } = req.body;
+  const { quantity } = req.body;
 
-  if (!productId) return res.status(400).json({ error: 'No product selected.' });
+  // Validate quantity
+  const qty = parseInt(quantity, 10);
+  if (!qty || qty < 1 || qty > 99) {
+    return res.status(400).json({ error: 'Invalid quantity.' });
+  }
 
   try {
-    const lineItems = [];
-
-    if (productId === 'healthassist') {
-      // Bundle: one-time + recurring
-      lineItems.push({
-        price: process.env.STRIPE_ONETIME_PRICE_ID,
-        quantity,
-      });
-      lineItems.push({
-        price: process.env.STRIPE_RECURRING_PRICE_ID,
-        quantity,
-      });
-    } else if (productId === 'annie') {
-      lineItems.push({
-        price: process.env.STRIPE_ANNIE_PRICE_ID,
-        quantity,
-      });
-    } else if (productId === 'affiliated') {
-      lineItems.push({
-        price: process.env.STRIPE_AFFILIATED_PRICE_ID,
-        quantity,
-      });
-    } else {
-      return res.status(400).json({ error: 'Unknown product.' });
-    }
-
-    // Add any extra add-ons (only relevant for healthassist bundle)
-    for (const addon of addons) {
-      if (addon.stripePrice) {
-        lineItems.push({ price: addon.stripePrice, quantity });
-      }
-    }
-
-    const metadata = {};
-    if (watchName) metadata.watch_name = watchName;
-    if (code) metadata.code = code;
-    metadata.product_id = productId;
-
     const session = await stripe.checkout.sessions.create({
-      mode: lineItems.some(li =>
-        [process.env.STRIPE_RECURRING_PRICE_ID, process.env.STRIPE_ANNIE_PRICE_ID, process.env.STRIPE_AFFILIATED_PRICE_ID]
-          .includes(li.price)
-      ) ? 'subscription' : 'payment',
-      line_items: lineItems,
-      success_url: `${baseUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/`,
-      metadata,
+      mode: 'subscription',
+      line_items: [
+        {
+          // ── REPLACE with your Stripe recurring Price ID ──
+          price: process.env.STRIPE_RECURRING_PRICE_ID,
+          quantity: qty,
+        },
+        {
+          // ── REPLACE with your Stripe one-time Price ID ──
+          price: process.env.STRIPE_ONETIME_PRICE_ID,
+          quantity: qty,
+        },
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success.html`,
+      cancel_url:  `${process.env.NEXT_PUBLIC_BASE_URL}/`,
     });
 
-    res.status(200).json({ url: session.url });
+    return res.status(200).json({ url: session.url });
+
   } catch (err) {
-    console.error('Stripe error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Stripe error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 };
