@@ -26,13 +26,13 @@ module.exports = async (req, res) => {
     },
   ];
 
-  // Add selected addon subscriptions at quantity 1 (not tied to qty stepper)
+  // Add selected addon subscriptions at the same quantity as the core products
   for (const addon of addons) {
     const priceId = ADDON_PRICE_MAP[addon.id];
     if (priceId) {
       lineItems.push({
         price: priceId,
-        quantity: 1,
+        quantity: qty,
       });
     }
   }
