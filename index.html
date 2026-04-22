@@ -33,7 +33,6 @@
       min-height: 100vh;
     }
 
-    /* ── MAIN ── */
     main {
       flex: 1;
       display: grid;
@@ -80,22 +79,9 @@
       margin-bottom: 1rem;
     }
 
-    .price-row .label {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .price-row .label strong {
-      display: block;
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .price-row .amount {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
-      text-align: right;
-    }
+    .price-row .label { font-size: 0.85rem; color: var(--muted); }
+    .price-row .label strong { display: block; color: var(--ink); font-weight: 500; }
+    .price-row .amount { font-family: 'Playfair Display', serif; font-size: 1rem; text-align: right; }
 
     .price-total {
       border-top: 1px solid var(--border);
@@ -111,9 +97,7 @@
       color: var(--ink);
     }
 
-    /* ── FORM ELEMENTS ── */
     .checkout-form { padding-left: 4rem; }
-
     .field-group { margin-bottom: 1.5rem; }
 
     label {
@@ -146,18 +130,8 @@
       overflow: hidden;
     }
 
-    .qty-btn {
-      width: 48px; height: 48px;
-      border: none; background: none;
-      cursor: pointer; font-size: 1.2rem;
-    }
-
-    #quantity {
-      width: 50px; text-align: center; border: none;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      font-family: 'Playfair Display', serif; font-size: 1.2rem;
-    }
+    .qty-btn { width: 48px; height: 48px; border: none; background: none; cursor: pointer; font-size: 1.2rem; }
+    #quantity { width: 50px; text-align: center; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); font-family: 'Playfair Display', serif; font-size: 1.2rem; }
 
     #checkout-btn {
       width: 100%;
@@ -170,7 +144,10 @@
       letter-spacing: 0.1em;
       cursor: pointer;
       margin-top: 1rem;
+      transition: opacity 0.2s;
     }
+
+    #checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .includes { list-style: none; margin: 1.5rem 0; color: var(--muted); font-size: 0.85rem; }
     .includes li { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -229,7 +206,6 @@
     <ul class="includes">
       <li>Secure hardware delivery</li>
       <li>Instant app access</li>
-      <li>Encrypted data monitoring</li>
       <li>Cancel anytime</li>
     </ul>
 
@@ -238,34 +214,39 @@
 </main>
 
 <script>
-  // ── PRODUCT DATA ──
+  // ── CONFIG: Replace price_... with actual Stripe IDs ──
   const products = [
     {
       id: 'rpm-standard',
       name: 'HealthAssist RPM',
       onetime: 140.00,
+      onetimePriceId: 'price_YOUR_STANDARD_SETUP_ID', 
       recurring: 24.95,
+      recurringPriceId: 'price_YOUR_STANDARD_MONTHLY_ID',
       description: 'Our standard remote patient monitoring setup with core health tracking.'
     },
     {
       id: 'rpm-pro',
       name: 'HealthAssist PRO',
       onetime: 250.00,
+      onetimePriceId: 'price_YOUR_PRO_SETUP_ID',
       recurring: 45.00,
+      recurringPriceId: 'price_YOUR_PRO_MONTHLY_ID',
       description: 'Advanced monitoring kit with 24/7 priority support and secondary sensors.'
     },
     {
       id: 'rpm-lite',
       name: 'HealthAssist LITE',
       onetime: 75.00,
+      onetimePriceId: 'price_YOUR_LITE_SETUP_ID',
       recurring: 15.00,
+      recurringPriceId: 'price_YOUR_LITE_MONTHLY_ID',
       description: 'Essential monitoring for basic health check-ins and monthly reporting.'
     }
   ];
 
   let currentProduct = products[0];
 
-  // ── UI ELEMENTS ──
   const productSelect = document.getElementById('product-select');
   const qtyInput      = document.getElementById('quantity');
   const onetimeEl     = document.getElementById('onetime-total');
@@ -274,7 +255,7 @@
   const prodNameEl    = document.querySelector('.product-name');
   const prodDescEl    = document.querySelector('.product-desc');
 
-  // ── INITIALIZE SELECT ──
+  // Initialize Select Options
   products.forEach(p => {
     const opt = document.createElement('option');
     opt.value = p.id;
@@ -284,18 +265,17 @@
 
   function updatePricing() {
     const qty = parseInt(qtyInput.value) || 1;
-    const onetimeTotal = (currentProduct.onetime * qty).toFixed(2);
-    const recurringTotal = (currentProduct.recurring * qty).toFixed(2);
-    const todayTotal = (parseFloat(onetimeTotal) + parseFloat(recurringTotal)).toFixed(2);
+    const oTotal = (currentProduct.onetime * qty).toFixed(2);
+    const rTotal = (currentProduct.recurring * qty).toFixed(2);
+    const tTotal = (parseFloat(oTotal) + parseFloat(rTotal)).toFixed(2);
 
     prodNameEl.textContent = currentProduct.name;
     prodDescEl.textContent = currentProduct.description;
-    onetimeEl.textContent = onetimeTotal;
-    recurringEl.textContent = recurringTotal;
-    totalEl.textContent = `$${todayTotal}`;
+    onetimeEl.textContent = oTotal;
+    recurringEl.textContent = rTotal;
+    totalEl.textContent = `$${tTotal}`;
   }
 
-  // ── EVENT LISTENERS ──
   productSelect.addEventListener('change', (e) => {
     currentProduct = products.find(p => p.id === e.target.value);
     updatePricing();
@@ -319,24 +299,30 @@
     btn.textContent = 'Redirecting...';
 
     try {
-      const res = await fetch('/api/create-checkout', {
+      const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          productId: currentProduct.id,
+          onetimePriceId: currentProduct.onetimePriceId,
+          recurringPriceId: currentProduct.recurringPriceId,
           quantity: parseInt(qtyInput.value) 
         }),
       });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No redirect URL found');
+      }
     } catch (err) {
-      alert('Checkout error. Please try again.');
+      console.error(err);
+      alert('Checkout error. Please check your Stripe Price IDs.');
       btn.disabled = false;
       btn.textContent = 'Proceed to Payment';
     }
   });
 
-  // Start logic
   updatePricing();
 </script>
 </body>
